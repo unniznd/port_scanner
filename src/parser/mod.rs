@@ -2,12 +2,12 @@ use std::{net::IpAddr, str::FromStr};
 
 pub struct Command {
     pub addr: IpAddr,
-    pub threads: u16,
+    pub start_port: u16,
+    pub end_port: u16
 }
 
 pub enum ParseResult {
     Ok(Command),
-    Help(&'static str),
     Err(&'static str),
 }
 
@@ -23,25 +23,23 @@ impl Command {
                 Err(e) => return ParseResult::Err(e),
             };
 
-        let threads = match args.next().as_deref() {
-            Some("-t") => {
-                match args.next()
-                    .ok_or("Missing thread input")
-                    .and_then(|val| val.parse::<u16>()
-                    .map_err(|_| "Invalid thread input")) {
-                        Ok(threads) => threads,
-                        Err(e) => return ParseResult::Err(e),
-                     }
-            }
-            Some("-h") => return ParseResult:: Help(
-                "Usage: command <IP_ADDRESS> [-t <THREAD_COUNT>] [-h for help]"
-            ),
-            Some(_) => return ParseResult:: Err("Invalid parameter"),
-            None => 3, 
-        };
+            let start_port = match args.next() {
+                Some(s_port) => match s_port.parse::<u16>() {
+                    Ok(e) => e,
+                    Err(_) =>  return ParseResult:: Err("Error parsing start port")
+                },
+                None => 0,
+            };
+            let end_port = match args.next() {
+                Some(s_port) => match s_port.parse::<u16>() {
+                    Ok(e) => e,
+                    Err(_) =>  return ParseResult:: Err("Error parsing end port")
+                },
+                None => 65535,
+            };
     
         ParseResult::Ok(
-            Command{addr, threads}
+            Command{addr, start_port, end_port}
         )
     
         
