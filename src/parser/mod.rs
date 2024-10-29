@@ -1,8 +1,8 @@
 use std::{net::IpAddr, str::FromStr};
-#[derive(Debug, PartialEq)]
+
 pub struct Command {
     pub addr: IpAddr,
-    pub threads: Option<u16>,
+    pub threads: u16,
 }
 
 pub enum ParseResult {
@@ -29,7 +29,7 @@ impl Command {
                     .ok_or("Missing thread input")
                     .and_then(|val| val.parse::<u16>()
                     .map_err(|_| "Invalid thread input")) {
-                        Ok(threads) => Some(threads),
+                        Ok(threads) => threads,
                         Err(e) => return ParseResult::Err(e),
                      }
             }
@@ -37,7 +37,7 @@ impl Command {
                 "Usage: command <IP_ADDRESS> [-t <THREAD_COUNT>] [-h for help]"
             ),
             Some(_) => return ParseResult:: Err("Invalid parameter"),
-            None => None, 
+            None => 3, 
         };
     
         ParseResult::Ok(
